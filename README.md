@@ -1,0 +1,1 @@
+# GENERA-PAROL
