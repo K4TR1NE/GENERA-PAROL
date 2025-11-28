@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Генератор паролей</title>
+    <style>
+        /* Базовые стили и сброс */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* Контейнер */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Заголовок */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin: 25px 0 15px 0;
+            font-size: 1.8em;
+        }
+
+        /* Навигация */
+        .nav-bar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 15px 30px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            animation: slideInDown 0.6s ease-out;
+        }
+
+        .nav-bar p, .nav-bar a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-bar a:hover {
+            color: #f1c40f;
+            transform: translateY(-2px);
+        }
+
+        /* Форма */
+        form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Кнопки */
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        /* Сгенерированные пароли */
+        .password-list {
+            list-style: none;
+            margin-top: 30px;
+        }
+
+        .password-item {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: slideInRight 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .password-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .password-item:hover::before {
+            left: 100%;
+        }
+
+        .password-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        /* Сохраненные пароли */
+        .saved-passwords {
+            margin-top: 40px;
+            animation: fadeIn 0.8s ease-out 0.4s both;
+        }
+
+        .saved-password-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        .saved-password-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Алерт сообщения */
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            font-weight: 500;
+            animation: slideInLeft 0.6s ease-out;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #ffe66d, #f9c74f);
+            color: #333;
+        }
+
+        /* Анимации */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(102, 126, 234, 0.8), 0 0 30px rgba(102, 126, 234, 0.6);
+            }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .nav-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            form {
+                padding: 20px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        /* Эффект частиц */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        /* Дополнительные стили для списков */
+        ul {
+            list-style: none;
+        }
+
+        .password-item form {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .password-item form label {
+            color: white;
+        }
+
+        .password-item form input {
+            background: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Генератор паролей</h1>
+
+        <div class="nav-bar">
+            {% if session.username %}
+            <p>Добро пожаловать, {{ session.username }}! <a href="{{ url_for('logout') }}">Выйти</a></p>
+            {% else %}
+            <p>
+                <a href="{{ url_for('login') }}">🔑 Войти</a> |
+                <a href="{{ url_for('register') }}">📝 Зарегистрироваться</a>
+            </p>
+            {% endif %}
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="post">
+            <label for="length">📏 Длина пароля:</label>
+            <input type="number" id="length" name="length" value="{{ length }}" min="4" max="50">
+
+            <label for="complexity">🎯 Сложность:</label>
+            <select id="complexity" name="complexity">
+                <option value="easy" {% if complexity =='easy' %}selected{% endif %}>🥉 Легкий</option>
+                <option value="medium" {% if complexity =='medium' %}selected{% endif %}>🥈 Средний</option>
+                <option value="hard" {% if complexity =='hard' %}selected{% endif %}>🥇 Сложный</option>
+            </select>
+
+            <button type="submit" name="generate">✨ Сгенерировать пароль</button>
+        </form>
+
+        {% if passwords %}
+            <h2>🎉 Сгенерированные пароли:</h2>
+            <ul class="password-list">
+                {% for password in passwords %}
+                    <li class="password-item">
+                        <div class="password-text">{{ password }}</div>
+                        <form method="post">
+                            <input type="hidden" name="password" value="{{ password }}">
+                            <label for="website">🌐 Сайт:</label>
+                            <input type="text" id="website" name="website" required>
+                            <label for="login">👤 Логин:</label>
+                            <input type="text" id="login" name="login" required>
+                            <button type="submit" name="save">💾 Сохранить пароль</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if saved_passwords %}
+            <div class="saved-passwords">
+                <h2>📚 Сохраненные пароли:</h2>
+                <ul>
+                    {% for password in saved_passwords %}
+                        <li class="saved-password-item">
+                            🌐 <strong>Сайт:</strong> {{ password.website }}<br>
+                            👤 <strong>Логин:</strong> {{ password.login }}<br>
+                            🔐 <strong>Пароль:</strong> {{ password.password }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Создание эффекта частиц
+        function createParticles() {
+            const particlesContainer = document.createElement('div');
+            particlesContainer.className = 'particles';
+            document.body.appendChild(particlesContainer);
+
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                const size = Math.random() * 20 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                particle.style.animationDelay = `${Math.random() * 6}s`;
+
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Анимация при наведении на элементы
+        function addHoverEffects() {
+            const buttons = document.querySelectorAll('button');
+            const cards = document.querySelectorAll('.password-item, .saved-password-item');
+
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px)';
+                });
+
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            addHoverEffects();
+        });
+    </script>
+</body>
+</html>
